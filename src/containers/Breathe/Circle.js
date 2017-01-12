@@ -4,8 +4,6 @@ import {createDrawSmallCircle, createDrawBorder} from './canvasUtils'
 export default class Circle extends Component {
     static defaultProps = {
         scale: 1.4,
-        x: 187.5,
-        y: 324,
         innerRadius: 108,
         outerRadius: 116.5,
         outerBorder: 4,
@@ -47,15 +45,20 @@ export default class Circle extends Component {
 
     init(canvas) {
         this.canvas = canvas
-        this.ctx = canvas.getContext('2d')
+        window.ctx = this.ctx = canvas.getContext('2d')
 
         const {width, height} = this.computeSize()
         const ratio = this.computeScaleRatio()
-        this.setSize(width, height, ratio)
+
+        this.setSize(width, height, ratio, this.props.scale)
+
+        Object.assign(this, {canvasHeight: height, canvasWidth: width, ratio})
     }
 
     computeSize() {
-        const {width, height} = window.screen
+        const {outerBorder, outerRadius} = this.props
+        const width = (outerBorder + outerRadius) * 2
+        const height = (outerBorder + outerRadius) * 2
 
         return {width, height}
     }
@@ -67,7 +70,14 @@ export default class Circle extends Component {
         return devicePixelRatio * Math.ceil(scale)
     }
 
-    setSize(width, height, ratio) {
+    computeCanvasSize(width, height, ratio, scale) {
+        const canvasWidth = width * ratio * scale
+        const canvasHeight = height * ratio * scale
+
+        return {canvasWidth, canvasHeight}
+    }
+
+    setSize(width, height, ratio, scale) {
         const {canvas, ctx} = this
 
         canvas.width = width * ratio
@@ -79,8 +89,10 @@ export default class Circle extends Component {
     }
 
     draw = (timestamp) => {
-        const {canvas, ctx, props} = this
-        const {x, y, innerRadius, outerRadius, outerBorder, startDegree, smallCircleRadius, colorStop1, colorStop2, stopPoints} = props
+        const {canvas, ctx, props, canvasWidth, canvasHeight} = this
+        const {innerRadius, outerRadius, outerBorder, startDegree, smallCircleRadius, colorStop1, colorStop2, stopPoints} = props
+        const x = canvasWidth / 2
+        const y = canvasHeight / 2
         const totalDuration = stopPoints.reduce((acc, stopPoint) => acc += stopPoint.duration , 0)
         const length = outerRadius + outerBorder - smallCircleRadius
 
@@ -125,16 +137,35 @@ export default class Circle extends Component {
         
         if (!this.animationStartTime) {
             this.animationStartTime = timestamp
-            this.beginAnimation()
         }
+        const elapse = timestamp - this.animationStartTime
+        this.props.animationElapse(elapse)
+
         // 画移动的stop点
-        drawSmallCircle({length, degree: startDegree + 360 * (timestamp - this.animationStartTime) / (totalDuration * 1000), })
+        drawSmallCircle({length, degree: startDegree + 360 * elapse / (totalDuration * 1000)})
+
+        this.scaleCircle(elapse)
 
         window.requestAnimationFrame(this.draw)
     }
 
-    beginAnimation() {
-        this.canvas.classList.add('CanvasCircle--scale')
-        this.props.animationCallBack()
+    scaleCircle(elapse) {
+        const {ctx} = this
+        const {scale} = this.props
+
+        const x = (elapse / 1000) % 10
+        let ratio
+
+        if (0 <= x && x < 4) {
+            ratio = 0.1 * x + 1
+        }
+        else if (4 <= x && x < 6) {
+            ratio = 1.4
+        }
+        else {
+            ratio = -0.1 * x + 2
+        }
+
+        ctx.canvas.style.transform = `translate(-50%, -50%) scale(${ratio}, ${ratio})`
     }
 }

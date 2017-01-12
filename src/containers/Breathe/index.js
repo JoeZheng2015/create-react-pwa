@@ -19,21 +19,15 @@ export default class Breathe extends Component {
                     <span className="second">{formatNumber(second)}</span>
                 </div>
                 <Circle
-                    animationCallBack={this.startElapse}
+                    animationElapse={this.setElapse}
                     />
             </div>
         )
     }
 
-    startElapse = () => {
-        this.clearCounter = createCounter(() => {
-            this.setState({
-                elapse: this.state.elapse + 1,
-            })
-        }, 1000)
-    }
-
-    componentWillUnmount() {
-        this.clearCounter && this.clearCounter()
+    setElapse = (elapse) => {
+        this.setState({
+            elapse: ~~(elapse / 1000),
+        })
     }
 }

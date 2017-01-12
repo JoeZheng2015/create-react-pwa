@@ -1,5 +1,8 @@
 .CanvasCircle {
     background-color: rgba(83, 67, 60, 0.5);
+    position: absolute;
+    top: 50%;
+    left: 50%;
 }
 
 .CanvasCircle--scale {
