@@ -1,0 +1,22 @@
+.CanvasCircle {
+    background-color: rgba(83, 67, 60, 0.5);
+}
+
+.CanvasCircle--scale {
+    animation: scale 10s infinite;
+}
+
+@keyframes scale {
+    0% {
+        transform: scale(1, 1)
+    }
+    35% {
+        transform: scale(1.4, 1.4)
+    }
+    55% {
+        transform: scale(1.4, 1.4)
+    }
+    95% {
+        transform: scale(1, 1)
+    }
+}

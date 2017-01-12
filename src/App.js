@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import './App.css'
+import React, { Component } from 'react'
 
 const settings = {
     x: 187.5,
@@ -37,7 +36,7 @@ class App extends Component {
         window.requestAnimationFrame(this.draw)
     }
 
-    draw = () => {
+    draw = (timestamp) => {
         const {canvas, ctx, start} = this
         const {x, y, innerRadius, outerRadius, outerBorder, breathInColor, breathOutColor, holdColor, beginDegree, smallCircleRadius, duration} = settings
         const hypotenuse = outerRadius + outerBorder - smallCircleRadius
@@ -67,7 +66,7 @@ class App extends Component {
         drawSmallCircle({ctx, x, y, hypotenuse, degree: beginDegree + 360 * 0.4})
         drawSmallCircle({ctx, x, y, hypotenuse, degree: beginDegree + 360 * 0.6})
 
-        drawSmallCircle({ctx, x, y, hypotenuse, degree: beginDegree + 360 * (performance.now() - start) / duration})
+        drawSmallCircle({ctx, x, y, hypotenuse, degree: beginDegree + 360 * timestamp / duration})
 
 
         function drawSmallCircle({ctx, x, y, hypotenuse, degree}) {
